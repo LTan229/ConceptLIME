@@ -8,7 +8,7 @@ from scipy.stats import pearsonr
 import matplotlib.colors as mcolors
 
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format="[%(asctime)s][%(levelname)s] %(message)s")
+logging.basicConfig(stream=sys.stdout, format="[%(asctime)s][%(levelname)s] %(message)s")
 
 
 class ConceptLIME:

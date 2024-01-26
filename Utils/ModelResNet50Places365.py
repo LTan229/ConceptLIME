@@ -80,9 +80,9 @@ class ResNet50_Places365():
                 batch = batch.reshape(1, *batch.shape)
 
             if flag_hook:
-                pred = self.model_hooked.forward(input_images).cpu().numpy()
+                pred = self.model_hooked.forward(batch).cpu().numpy()
             else:
-                pred = self.model.forward(input_images).cpu().numpy()
+                pred = self.model.forward(batch).cpu().numpy()
 
             logits.extend(pred)
         return np.stack(logits)
