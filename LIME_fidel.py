@@ -10,14 +10,12 @@ os.environ["TQDM_MININTERVAL"] = "5"
 
 
 import itertools
-import torch
 from Args import Args
 from Utils.ModelResNet50Places365 import ResNet50_Places365
 from Utils.DataSetADE20K import ADE20KDataset
 import numpy as np
 from Method.lime import lime_image
-from Utils.utils import save_pickle
-from Method.ConceptLIME import ConceptLIME
+from Utils.utils import mask_imgs, save_pickle
 from scipy.stats import pearsonr
 import math
 import logging
@@ -85,7 +83,7 @@ for img_id in img_ids:
         logging.info(f"removing random combinations of {remove_seg_cnt} segments")
         combinations = generate_combinations(seg_cnt, remove_seg_cnt, args.FIDELITY_EVAL_SIZE)
         combinations = np.array(combinations)
-        image_pert = ConceptLIME._mask_imgs(combinations, explanation.segments, explained_image, color="white")
+        image_pert = mask_imgs(combinations, explanation.segments, explained_image, color="white")
         nn_pred_pert = model.predict_prob(image_pert)[:, nn_pred_cls]
         surrog_pred_pert = explainer.base.easy_model.predict(combinations)
 

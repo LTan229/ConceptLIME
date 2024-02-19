@@ -5,7 +5,7 @@ from sklearn.linear_model import Ridge
 import logging
 import sys
 from scipy.stats import pearsonr
-import matplotlib.colors as mcolors
+from Utils.utils import mask_imgs
 
 
 logging.basicConfig(stream=sys.stdout, format="[%(asctime)s][%(levelname)s] %(message)s")
@@ -103,7 +103,7 @@ class ConceptLIME:
             cpt_mask = self.current_expanation['concept_mask']
             _, cpt_idx_mask = np.unique(cpt_mask, return_inverse=True)
             cpt_idx_mask = cpt_idx_mask.reshape(cpt_mask.shape[0], cpt_mask.shape[1])
-            image_pert = ConceptLIME._mask_imgs(cpt_existence, cpt_idx_mask, self.current_expanation['img'], color=color)
+            image_pert = mask_imgs(cpt_existence, cpt_idx_mask, self.current_expanation['img'], color=color)
 
             nn_pred_pert = self.model.predict_prob(image_pert)[:, self.current_expanation['img_top_cls']]
             surrog_pred_pert = self.surrogate_model.predict(cpt_existence)
@@ -142,27 +142,10 @@ class ConceptLIME:
             temp_combinations = combinations[i:i+batch_size]
             if len(temp_combinations.shape) == 1:
                 temp_combinations = temp_combinations.reshape(1, -1)
-            temp_imgs = ConceptLIME._mask_imgs(temp_combinations, cpt_idx_mask, image)
+            temp_imgs = mask_imgs(temp_combinations, cpt_idx_mask, image)
             image_pred = self.model.predict_prob(temp_imgs, flag_hook=False)
             perturb_pred.extend(image_pred)
         return combinations, np.stack(perturb_pred)
-    
-
-    @staticmethod
-    def _mask_imgs(zs: np.ndarray, 
-                   segmentation: np.ndarray, 
-                   image: np.ndarray,
-                   color="average") -> np.ndarray:
-        out = np.zeros((zs.shape[0], image.shape[0], image.shape[1], image.shape[2]))
-        for i in range(zs.shape[0]):
-            out[i,:,:,:] = image
-            for j in range(zs.shape[1]):
-                if zs[i,j] == 0:
-                    if color == "average":
-                        out[i][segmentation == j,:] = np.sum(image[segmentation == j], axis=(0)) / np.sum(segmentation == j)
-                    else:
-                        out[i][segmentation == j,:] = np.array(mcolors.to_rgb(color)) * 255
-        return out
     
     
     def _cluster(self, feat_vecs: np.ndarray, k=None) -> np.ndarray:
