@@ -24,6 +24,10 @@ class Args():
     NAME_XCEPTION_ADE = "deeplabv3_xception_ade20k_train_2018_05_29.tar.gz"
     NAME_RESNET_PLACES = "resnet50_places365.pth.tar"
 
+    '''visualization'''
+    ALPHA = 0.3
+    DPI = 1200
+
     def get_path(self, name: str) -> str:
         if name == "ADE":
             return os.path.join(self.DIR_DATASET, self.NAME_ADE)
