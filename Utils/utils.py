@@ -1,3 +1,5 @@
+import itertools
+import math
 import os
 from urllib.parse import urlparse
 import pickle
@@ -44,3 +46,27 @@ def mask_imgs(zs: np.ndarray,
                 else:
                     out[i][segmentation == j,:] = np.array(mcolors.to_rgb(color)) * 255
     return out
+
+
+def generate_combinations(comb_len, remove_cnt, comb_num):
+    if math.comb(comb_len, remove_cnt) < 3 * comb_num:
+        combinations = []
+        for ids in itertools.combinations(range(comb_len), remove_cnt):
+            combination = np.ones(comb_len)
+            combination[list(ids)] = 0
+            combinations.append(combination)
+        combinations = np.array(combinations)
+        if len(combinations) > comb_num:
+            ids = np.random.choice(len(combinations), comb_num, replace=False)
+            combinations = combinations[ids]
+        return combinations
+    else:
+        combinations = []
+        while len(combinations) < comb_num:
+            ids = np.random.choice(comb_len, remove_cnt, replace=False)
+            combination = np.ones(comb_len)
+            combination[ids] = 0
+            combination = combination.tolist()
+            if combination not in combinations:
+                combinations.append(combination)
+        return np.array(combinations)

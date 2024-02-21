@@ -9,15 +9,13 @@ import os
 os.environ["TQDM_MININTERVAL"] = "5"
 
 
-import itertools
 from Args import Args
 from Utils.ModelResNet50Places365 import ResNet50_Places365
 from Utils.DataSetADE20K import ADE20KDataset
 import numpy as np
 from Method.lime import lime_image
-from Utils.utils import mask_imgs, save_pickle
+from Utils.utils import generate_combinations, mask_imgs, save_pickle
 from scipy.stats import pearsonr
-import math
 import logging
 import sys
 
@@ -36,31 +34,6 @@ dataset = ADE20KDataset(args.get_path("ADE"))
 # Load model to be explained
 # device = torch.device("cpu")
 model = ResNet50_Places365(args.DEVICE)
-
-
-# util
-def generate_combinations(comb_len, remove_cnt, comb_num):
-    if math.comb(comb_len, remove_cnt) < 3 * comb_num:
-        combinations = []
-        for ids in itertools.combinations(range(comb_len), remove_cnt):
-            combination = np.ones(comb_len)
-            combination[list(ids)] = 0
-            combinations.append(combination)
-        combinations = np.array(combinations)
-        if len(combinations) > comb_num:
-            ids = np.random.choice(len(combinations), comb_num, replace=False)
-            combinations = combinations[ids]
-        return combinations
-    else:
-        combinations = []
-        while len(combinations) < comb_num:
-            ids = np.random.choice(comb_len, remove_cnt, replace=False)
-            combination = np.ones(comb_len)
-            combination[ids] = 0
-            combination = combination.tolist()
-            if combination not in combinations:
-                combinations.append(combination)
-        return np.array(combinations)
 
 
 img_ids, _ = dataset.get_test_samples(50, 10, 10)
@@ -95,7 +68,4 @@ for img_id in img_ids:
     result.append(correlations)
 
 save_pickle(f"{args.DIR_RESULT}/LIME_fidel.pickle", result)
-
-
-
 

@@ -186,14 +186,4 @@ class ConceptLIME:
 
     def eval_predict(self):
         return self.current_expanation['train_y'], self.surrogate_model.predict(self.current_expanation['train_x'])
-
-
-    @staticmethod
-    def generate_combinations(rangee, remove_cpt_cnt, comb_num):
-            combinations = []
-            while len(combinations) < comb_num:
-                combination = np.random.choice(rangee, remove_cpt_cnt)
-                if combination not in combinations:
-                    combinations.append(combination)
-            return combinations
     
